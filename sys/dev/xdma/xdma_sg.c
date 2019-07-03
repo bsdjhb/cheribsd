@@ -346,7 +346,8 @@ xchan_seg_done(xdma_channel_t *xchan,
 			bus_dmamap_unload(xchan->dma_tag_bufs, b->map);
 		} else {
 			if (xr->req_type == XR_TYPE_MBUF &&
-			    xr->direction == XDMA_DEV_TO_MEM)
+			    xr->direction == XDMA_DEV_TO_MEM &&
+			    (xchan->caps & XCHAN_CAP_NOBUFS) == 0)
 				m_copyback(xr->m, 0, st->transferred,
 				    (void *)xr->buf.vaddr);
 		}
