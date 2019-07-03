@@ -40,6 +40,7 @@ __FBSDID("$FreeBSD$");
 #include <sys/bus.h>
 #include <sys/endian.h>
 #include <sys/kernel.h>
+#include <sys/ktr.h>
 #include <sys/kthread.h>
 #include <sys/module.h>
 #include <sys/lock.h>
@@ -502,13 +503,22 @@ softdma_process_descriptors(struct softdma_channel *chan,
 
 	while (desc != NULL) {
 
+		CTR3(KTR_SPARE5,
+		    "softdma_process_descriptors: descs[%d] ctl %d dir %d",
+		    (int)(desc - chan->descs), desc->control, desc->direction);
 		if ((desc->control & CONTROL_OWN) == 0) {
 			break;
 		}
 
 		if (desc->direction == XDMA_MEM_TO_DEV) {
+			CTR2(KTR_SPARE5,
+			    "softdma_process_descriptors: calling softdma_process_tx(%p, %p)",
+			    chan, desc);
 			ret = softdma_process_tx(chan, desc);
 		} else {
+			CTR2(KTR_SPARE5,
+			    "softdma_process_descriptors: calling softdma_process_rx(%p, %p)",
+			    chan, desc);
 			ret = softdma_process_rx(chan, desc);
 			if (ret == 0) {
 				/* No new data available. */
@@ -526,6 +536,9 @@ softdma_process_descriptors(struct softdma_channel *chan,
 			st.error = ret;
 			st.transferred = 0;
 		}
+		CTR2(KTR_SPARE5,
+		    "softdma_process_descriptors: error %d xfered %d",
+		    st.error, st.transferred);
 
 		xchan_seg_done(xchan, &st);
 		atomic_subtract_int(&chan->descs_used_count, 1);
@@ -567,10 +580,13 @@ softdma_worker(void *arg)
 		status.error = 0;
 		status.transferred = 0;
 
+		CTR0(KTR_SPARE5,
+		    "softdma_worker: calling softdma_process_descriptors");
 		softdma_process_descriptors(chan, &status);
 
 		/* Finish operation */
 		chan->run = 0;
+		CTR0(KTR_SPARE5, "softdma_worker: calling xdma_callback");
 		xdma_callback(chan->xchan, &status);
 
 		mtx_unlock(&chan->mtx);

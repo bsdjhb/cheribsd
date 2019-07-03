@@ -1293,6 +1293,7 @@ atse_attach(device_t dev)
 	caps = XCHAN_CAP_NOSEG;
 
 	/* Alloc xDMA virtual channel. */
+	CTR1(KTR_SPARE5, "atse_attach: alloc xchan_tx caps = %d", caps);
 	sc->xchan_tx = xdma_channel_alloc(sc->xdma_tx, caps);
 	if (sc->xchan_tx == NULL) {
 		device_printf(dev, "Can't alloc virtual DMA channel.\n");
@@ -1324,6 +1325,7 @@ atse_attach(device_t dev)
 	}
 
 	/* Alloc xDMA virtual channel. */
+	CTR1(KTR_SPARE5, "atse_attach: alloc xchan_rx caps = %d", caps);
 	sc->xchan_rx = xdma_channel_alloc(sc->xdma_rx, caps);
 	if (sc->xchan_rx == NULL) {
 		device_printf(dev, "Can't alloc virtual DMA channel.\n");

@@ -37,6 +37,7 @@ __FBSDID("$FreeBSD$");
 #include <sys/conf.h>
 #include <sys/bus.h>
 #include <sys/kernel.h>
+#include <sys/ktr.h>
 #include <sys/queue.h>
 #include <sys/kobj.h>
 #include <sys/malloc.h>
@@ -82,6 +83,9 @@ xdma_channel_alloc(xdma_controller_t *xdma, uint32_t caps)
 	xchan->xdma = xdma;
 	xchan->caps = caps;
 
+	CTR2(KTR_SPARE5, "xdma_channel_alloc: alloced %p with initial caps %d",
+	    xchan, xchan->caps);
+	
 	XDMA_LOCK();
 
 	/* Request a real channel from hardware driver. */
@@ -111,6 +115,9 @@ xdma_channel_alloc(xdma_controller_t *xdma, uint32_t caps)
 	TAILQ_INSERT_TAIL(&xdma->channels, xchan, xchan_next);
 
 	XDMA_UNLOCK();
+
+	CTR2(KTR_SPARE5, "xdma_channel_alloc: returning %p with caps %d",
+	    xchan, xchan->caps);
 
 	return (xchan);
 }
@@ -282,9 +289,13 @@ xdma_callback(xdma_channel_t *xchan, xdma_transfer_status_t *status)
 	xdma = xchan->xdma;
 	KASSERT(xdma != NULL, ("xdma is NULL"));
 
-	TAILQ_FOREACH_SAFE(ih, &xchan->ie_handlers, ih_next, ih_tmp)
-		if (ih->cb != NULL)
+	TAILQ_FOREACH_SAFE(ih, &xchan->ie_handlers, ih_next, ih_tmp) {
+		if (ih->cb != NULL)  {
+			CTR2(KTR_SPARE5, "xdma_callback: invoking %p(%p)",
+			    ih->cb, ih->cb_user);
 			ih->cb(ih->cb_user, status);
+		}
+	}
 
 	if (xchan->flags & XCHAN_TYPE_SG)
 		xdma_queue_submit(xchan);
