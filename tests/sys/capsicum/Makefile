@@ -54,4 +54,7 @@ WARNS.capsicum-test=	3
 
 WARNS?=	6
 
+# XXX: No way to apply this to individual tests
+LD_FATAL_WARNINGS=no
+
 .include <bsd.test.mk>

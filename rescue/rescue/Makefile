@@ -7,6 +7,7 @@ PACKAGE=rescue
 MAN=
 MK_SSP=	no
 NO_SHARED=	yes
+LD_FATAL_WARNINGS=no
 
 PROG=	rescue
 BINDIR?=/rescue

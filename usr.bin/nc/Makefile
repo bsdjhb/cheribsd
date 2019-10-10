@@ -16,5 +16,6 @@ CFLAGS+=	-DWITH_STATS
 .endif
 
 WARNS?=	2
+LD_FATAL_WARNINGS=no
 
 .include <bsd.prog.mk>

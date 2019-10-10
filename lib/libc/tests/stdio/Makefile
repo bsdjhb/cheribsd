@@ -39,6 +39,9 @@ PROG_OVERRIDE_VARS+=	NO_WFORMAT
 NO_WFORMAT.scanfloat_test=
 .endif
 
+# XXX: No way to apply this to individual tests
+LD_FATAL_WARNINGS=no
+
 .include "../Makefile.netbsd-tests"
 
 .include <bsd.test.mk>

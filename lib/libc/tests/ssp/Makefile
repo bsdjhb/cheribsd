@@ -56,6 +56,9 @@ PROGS+=		h_strncpy
 PROGS+=		h_vsnprintf
 PROGS+=		h_vsprintf
 
+# XXX: No way to apply this to individual tests
+LD_FATAL_WARNINGS=no
+
 .include "../Makefile.netbsd-tests"
 
 .include <bsd.test.mk>
