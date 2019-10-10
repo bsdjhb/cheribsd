@@ -57,19 +57,17 @@ ATF_TC_HEAD(dlopen_empty_test, tc)
 }
 ATF_TC_BODY(dlopen_empty_test, tc)
 {
-        char tempname[] = "/tmp/temp.XXXXXX";
-        char *fname;
+        char tempname[] = "/tmp/temp.XXXXXX.so";
         int fd;
         void *dlh;
         struct sigaction act, oact;
 
-        fname = mktemp(tempname);
-        ATF_REQUIRE_MSG(fname != NULL, "mktemp failed; errno=%d", errno);
-        asprintf(&soname, "%s.so", fname);
-        ATF_REQUIRE_MSG(soname != NULL, "asprintf failed; errno=%d", ENOMEM);
-        fd = open(soname, O_WRONLY | O_CREAT | O_TRUNC, DEFFILEMODE);
-        ATF_REQUIRE_MSG(fd != -1, "open(\"%s\") failed; errno=%d", soname, errno);
+        fd = mkstemps(tempname, strlen(".so"));
+        ATF_REQUIRE_MSG(fd != -1, "mkstemp failed; errno=%d", errno);
         close(fd);
+
+        soname = strdup(tempname);
+        ATF_REQUIRE_MSG(soname != NULL, "strdup failed; errno=%d", errno);
 
         act.sa_handler = sigsegv_handler;
         act.sa_flags = 0;
