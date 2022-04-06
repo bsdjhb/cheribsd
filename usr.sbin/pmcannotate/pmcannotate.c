@@ -437,11 +437,6 @@ fqueue_getall(const char *bin, char *temp, int asmf)
 		start = agg->ag_ostart;
 		end = agg->ag_oend;
 
-		/*
-		 * Fix-up the end address in order to show it in the objdump's
-		 * trace.
-		 */
-		end++;
 		if (asmf)
 			snprintf(tmpf, sizeof(tmpf),
 			    "objdump --start-address=%p "
