@@ -85,8 +85,8 @@ struct aggent {
 static struct aggent	*agg_create(const char *name, u_int nsamples,
 			    uintptr_t start, uintptr_t end);
 static void		 agg_destroy(struct aggent *agg) __unused;
-static void		 asmparse(FILE *fp);
-static int		 cparse(FILE *fp);
+static void		 asmparse(FILE *fp, u_int entry_limit);
+static int		 cparse(FILE *fp, u_int entry_limit);
 static void		 entry_acqref(struct entry *entry);
 static struct entry	*entry_create(const char *name, uintptr_t pc,
 			    uintptr_t start, uintptr_t end);
@@ -96,13 +96,16 @@ static void		 fqueue_deleteall(void);
 static struct aggent	*fqueue_findent_by_name(const char *name);
 static int		 fqueue_getall(const char *bin, char *temp, int asmf);
 static int		 fqueue_insertent(struct entry *entry);
-static int		 fqueue_insertgen(void);
+static int		 fqueue_insertgen(u_int entry_limit);
 static void		 general_deleteall(void);
 static struct entry	*general_findent(uintptr_t pc);
 static void		 general_insertent(struct entry *entry);
-static void		 general_printasm(FILE *fp, struct aggent *agg);
-static int		 general_printc(FILE *fp, struct aggent *agg);
-static int		 printblock(FILE *fp, struct aggent *agg);
+static void		 general_printasm(FILE *fp, struct aggent *agg,
+			    u_int entry_limit);
+static int		 general_printc(FILE *fp, struct aggent *agg,
+			    u_int entry_limit);
+static int		 printblock(FILE *fp, struct aggent *agg,
+			    u_int entry_limit);
 static void		 usage(const char *progname) __dead2;
 
 static TAILQ_HEAD(, entry) mainlst = TAILQ_HEAD_INITIALIZER(mainlst);
@@ -193,7 +196,7 @@ agg_destroy(struct aggent *agg)
  * the same.
  */
 static void
-asmparse(FILE *fp)
+asmparse(FILE *fp, u_int entry_limit)
 {
 	char buffer[LNBUFF], fname[FNBUFF];
 	struct aggent *agg;
@@ -215,7 +218,7 @@ asmparse(FILE *fp)
 			return;
 		printf("Profile trace for function: %s() [%.2f%%]\n",
 		    agg->ag_name, PERCSAMP(agg->ag_nsamples));
-		general_printasm(fp, agg);
+		general_printasm(fp, agg, entry_limit);
 		printf("\n");
 	}
 }
@@ -232,7 +235,7 @@ asmparse(FILE *fp)
  * happen.
  */
 static int
-cparse(FILE *fp)
+cparse(FILE *fp, u_int entry_limit)
 {
 	char buffer[LNBUFF], fname[FNBUFF];
 	struct aggent *agg;
@@ -254,7 +257,7 @@ cparse(FILE *fp)
 			return (-1);
 		printf("Profile trace for function: %s() [%.2f%%]\n",
 		    agg->ag_name, PERCSAMP(agg->ag_nsamples));
-		if (general_printc(fp, agg) == -1)
+		if (general_printc(fp, agg, entry_limit) == -1)
 			return (-1);
 		printf("\n");
 	}
@@ -458,13 +461,18 @@ fqueue_getall(const char *bin, char *temp, int asmf)
  * into the first-level aggregations queue.
  */
 static int
-fqueue_insertgen(void)
+fqueue_insertgen(u_int entry_limit)
 {
 	struct entry *obj;
 
-	TAILQ_FOREACH(obj, &mainlst, en_iter)
+	TAILQ_FOREACH(obj, &mainlst, en_iter) {
+		if (obj->en_nsamples < entry_limit) {
+			totalsamples -= obj->en_nsamples;
+			continue;
+		}
 		if (fqueue_insertent(obj) == -1)
 			return (-1);
+	}
 	return (0);
 }
 
@@ -538,7 +546,7 @@ print_count(u_int nsamples, u_int totsamples)
  * C lines and others not recognized are simply skipped.
  */
 static void
-general_printasm(FILE *fp, struct aggent *agg)
+general_printasm(FILE *fp, struct aggent *agg, u_int entry_limit)
 {
 	char buffer[LNBUFF];
 	struct entry *obj;
@@ -555,7 +563,7 @@ general_printasm(FILE *fp, struct aggent *agg)
 		if (sscanf(buffer, " %p:", &ptr) != 1)
 			continue;
 		obj = general_findent((uintptr_t)ptr);
-		if (obj == NULL)
+		if (obj == NULL || obj->en_nsamples < entry_limit)
 			printf("\t| %s", buffer);
 		else
 			printf("%7s | %s",
@@ -573,7 +581,7 @@ general_printasm(FILE *fp, struct aggent *agg)
  * (see below for an explanation of the "block" concept).
  */
 static int
-general_printc(FILE *fp, struct aggent *agg)
+general_printc(FILE *fp, struct aggent *agg, u_int entry_limit)
 {
 	char buffer[LNBUFF];
 
@@ -581,7 +589,7 @@ general_printc(FILE *fp, struct aggent *agg)
 		fseek(fp, strlen(buffer) * -1, SEEK_CUR);
 		if (newfunction(buffer) != 0)
 			break;
-		if (printblock(fp, agg) == -1)
+		if (printblock(fp, agg, entry_limit) == -1)
 			return (-1);
 	}
 	return (0);
@@ -596,7 +604,7 @@ general_printc(FILE *fp, struct aggent *agg)
  * C (higher half) counterpart.
  */
 static int
-printblock(FILE *fp, struct aggent *agg)
+printblock(FILE *fp, struct aggent *agg, u_int entry_limit)
 {
 	char buffer[LNBUFF];
 	long lstart;
@@ -648,7 +656,7 @@ printblock(FILE *fp, struct aggent *agg)
 	/* Again the high half of the block rappresenting the C part. */
 	done = 0;
 	while (fgets(buffer, LNBUFF, fp) != NULL && isasminline(buffer) == 0) {
-		if (tnsamples == 0 || done != 0)
+		if (tnsamples < entry_limit || done != 0)
 			printf("\t| %s", buffer);
 		else {
 			done = 1;
@@ -703,6 +711,7 @@ main(int argc, char *argv[])
 	FILE *gfp, *bfp;
 	void *ptr, *hstart, *hend;
 	uintptr_t tmppc, ostart, oend;
+	u_int entry_limit;
 	int cget, asmsrc;
 
 	exec = argv[0];
@@ -712,13 +721,17 @@ main(int argc, char *argv[])
 	asmsrc = 0;
 	limit = 0.5;
 	print_mode = BLOCK_PERCENT;
-	while ((cget = getopt(argc, argv, "ahl:m:k:")) != -1)
+	entry_limit = 0;
+	while ((cget = getopt(argc, argv, "ahL:l:m:k:")) != -1)
 		switch(cget) {
 		case 'a':
 			asmsrc = 1;
 			break;
 		case 'k':
 			kfile = optarg;
+			break;
+		case 'L':
+			entry_limit = atoi(optarg);
 			break;
 		case 'l':
 			limit = (float)atof(optarg);
@@ -824,7 +837,7 @@ main(int argc, char *argv[])
 	 * Remove the loose end objects and feed the first-level aggregation
 	 * queue.
 	 */
-	if (fqueue_insertgen() == -1)
+	if (fqueue_insertgen(entry_limit) == -1)
 		FATAL(exec, "%s: Impossible to generate an analysis\n",
 		    exec);
 	fqueue_compact(limit);
@@ -838,8 +851,8 @@ main(int argc, char *argv[])
 		    exec);
 
 	if (asmsrc != 0)
-		asmparse(bfp);
-	else if (cparse(bfp) == -1)
+		asmparse(bfp, entry_limit);
+	else if (cparse(bfp, entry_limit) == -1)
 		FATAL(NULL, "%s: Invalid format for the C file\n", exec);
 	if (fclose(bfp) == EOF)
                 FATAL(exec, "%s: Impossible to close the filedesc\n",
