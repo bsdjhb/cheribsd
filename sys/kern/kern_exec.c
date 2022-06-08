@@ -1080,12 +1080,13 @@ exec_map_first_page(struct image_params *imgp)
 		VM_OBJECT_WUNLOCK(object);
 	}
 #endif
-	error = vm_page_grab_valid_unlocked(&m, object, 0,
-	    VM_ALLOC_COUNT(VM_INITIAL_PAGEIN) |
+	error = vm_page_grab_valid_unlocked(&m, object, 0, VM_ALLOC_COUNT(VM_INITIAL_PAGEIN) |
 	    VM_ALLOC_NORMAL | VM_ALLOC_NOBUSY | VM_ALLOC_WIRED);
 
 	if (error != VM_PAGER_OK)
+	{
 		return (EIO);
+	}
 	imgp->firstpage = sf_buf_alloc(m, 0);
 	imgp->image_header = (char *)sf_buf_kva(imgp->firstpage);
 
@@ -2324,7 +2325,8 @@ core_output_memtag_cheri(char * __capability base, size_t mem_len,
 	hastags = false;
 
 	map = &cp->td->td_proc->p_vmspace->vm_map;
-	for (; mem_len > 0; base += PAGE_SIZE, mem_len -= PAGE_SIZE) {
+	for (; mem_len > 0; base += PAGE_SIZE, mem_len -= PAGE_SIZE)
+	{
 		if (core_dump_can_intr && curproc_sigkilled())
 			return (EINTR);
 
@@ -2380,12 +2382,12 @@ core_output_memtag_cheri(char * __capability base, size_t mem_len,
 int
 sbuf_drain_core_output(void *arg, const char *data, int len)
 {
-	struct coredump_params *cp;
-	struct proc *p;
-	int error, locked;
+struct coredump_params *cp;
+struct proc *p;
+int error, locked;
 
-	cp = arg;
-	p = cp->td->td_proc;
+cp = arg;
+p = cp->td->td_proc;
 
 	/*
 	 * Some kern_proc out routines that print to this sbuf may
