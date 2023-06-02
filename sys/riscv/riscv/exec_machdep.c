@@ -345,6 +345,15 @@ set_capregs(struct thread *td, struct capreg *regs)
 		}
 	}
 	PROC_LOCK(p);
+#if 1
+	for (i = 0; i < NCAPREGS; i++) {
+		if (cheri_equal_exact(fcap[i], tempregs[i]))
+			continue;
+		printf("%s[%u]: %#lp ->\n\t%#lp\n", __func__, i,
+		    (void * __capability)fcap[i],
+		    (void * __capability)tempregs[i]);
+	}
+#endif
 	memcpy(frame, tempregs, sizeof(tempregs));
 
 	return (0);

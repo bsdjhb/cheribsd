@@ -624,6 +624,33 @@ set_capregs(struct thread *td, struct capreg *regs)
 		goto fail;
 
 	PROC_LOCK(p);
+#if 1
+	for (i = 0; i < nitems(frame->tf_x); i++) {
+		if (cheri_equal_exact(frame->tf_x[i], tempregs.c[i]))
+			continue;
+		printf("%s c%u: %#lp ->\n\t%#lp\n", __func__, i,
+		    (void * __capability)frame->tf_x[i],
+		    (void * __capability)tempregs.c[i]);
+	}
+#define LOG_CAPREG(old, new, name)					\
+	if (!cheri_equal_exact((old), (new)))				\
+		printf("%s %s: %#lp ->\n\t%#lp\n", __func__, (name),	\
+		    (void * __capability)(old),				\
+		    (void * __capability)(new))
+
+	LOG_CAPREG(frame->tf_lr, tempregs.clr, "clr");
+	LOG_CAPREG(frame->tf_sp, tempregs.csp, "csp");
+	LOG_CAPREG(frame->tf_elr, tempregs.celr, "celr");
+	LOG_CAPREG(frame->tf_ddc, tempregs.ddc, "ddc");
+	LOG_CAPREG(td->td_pcb->pcb_tpidr_el0, tempregs.ctpidr, "ctpidr");
+	LOG_CAPREG(td->td_pcb->pcb_tpidrro_el0, tempregs.ctpidrro, "ctpidrro");
+	LOG_CAPREG(td->td_pcb->pcb_cid_el0, tempregs.cid, "cid");
+	LOG_CAPREG(td->td_pcb->pcb_rcsp_el0, tempregs.rcsp, "rcsp");
+	LOG_CAPREG(td->td_pcb->pcb_rddc_el0, tempregs.rddc, "rddc");
+	LOG_CAPREG(td->td_pcb->pcb_rctpidr_el0, tempregs.rctpidr, "rctpidr");
+
+#undef LOG_CAPREG
+#endif
 	memcpy(frame->tf_x, tempregs.c, sizeof(frame->tf_x));
 	frame->tf_lr = tempregs.clr;
 	frame->tf_sp = tempregs.csp;
