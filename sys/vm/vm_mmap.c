@@ -2186,6 +2186,9 @@ vm_derive_capreg(struct proc *p, uintcap_t in, uintcap_t *out)
 	void * __capability cap;
 	vm_map_t map;
 	int otype;
+#if 1
+	void * __capability save;
+#endif
 
 	/* The only sealed caps supported for this are sentries. */
 	otype = cheri_gettype(in);
@@ -2199,6 +2202,9 @@ vm_derive_capreg(struct proc *p, uintcap_t in, uintcap_t *out)
 
 	map = &p->p_vmspace->vm_map;
 	cap = vm_map_reservation_cap(map, (vm_offset_t)in);
+#if 1
+	save = cap;
+#endif
 
 	cap = cheri_buildcap(cap, in);
 #ifdef __aarch64__
@@ -2207,6 +2213,10 @@ vm_derive_capreg(struct proc *p, uintcap_t in, uintcap_t *out)
 		cap = cheri_sealentry(cap);
 #endif
 	if (cheri_gettag(cap)) {
+#if 1
+		printf("%s: derived cap %#lp from\t\n%#lp\n", __func__, cap,
+		    save);
+#endif
 		*out = (uintcap_t)cap;
 		return (true);
 	}
