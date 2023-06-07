@@ -657,6 +657,9 @@ proc_write_cheri_cap_page(struct proc *p, vm_map_t map, vm_offset_t va,
 	vm_page_t m;
 	u_int pageoff, todo;
 	int error;
+#if 1
+	uintcap_t old, new;
+#endif
 
 	KASSERT(is_aligned(va, sizeof(uintcap_t)),
 	    ("%s: user address %lx is not capability-aligned", __func__, va));
@@ -677,6 +680,9 @@ proc_write_cheri_cap_page(struct proc *p, vm_map_t map, vm_offset_t va,
 		if (error != 0)
 			break;
 
+#if 1
+		old = *dst;
+#endif
 		memcpy(&cap, capbuf + 1, sizeof(cap));
 		if (capbuf[0] != 0) {
 			if (!ptrace_derive_cap(p, cap, dst)) {
@@ -686,6 +692,14 @@ proc_write_cheri_cap_page(struct proc *p, vm_map_t map, vm_offset_t va,
 		} else
 			*dst = cap;
 
+#if 1
+		new = *dst;
+		if (!cheri_equal_exact(old, new)) {
+			printf("%s[%u][%#lx]: %#lp ->\n\t%#lp\n", __func__,
+			    p->p_pid, va + ((ptraddr_t)dst & PAGE_MASK),
+			    (void * __capability)old, (void * __capability)new);
+		}
+#endif
 		todo -= sizeof(capbuf);
 		dst++;
 	}
