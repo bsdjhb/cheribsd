@@ -211,6 +211,10 @@ ptrace_derive_cap(struct proc *p, uintcap_t in, uintcap_t *out)
 		}
 	}
 
+#if 1
+	printf("%s: failed to derive %#lp\n", __func__,
+	    (void * __capability)in);
+#endif
 	atomic_add_long(&cheri_untagged_ptrace_caps, 1);
 	return (false);
 }
