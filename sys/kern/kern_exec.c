@@ -2325,8 +2325,7 @@ core_output_memtag_cheri(char * __capability base, size_t mem_len,
 	hastags = false;
 
 	map = &cp->td->td_proc->p_vmspace->vm_map;
-	for (; mem_len > 0; base += PAGE_SIZE, mem_len -= PAGE_SIZE)
-	{
+	for (; mem_len > 0; base += PAGE_SIZE, mem_len -= PAGE_SIZE) {
 		if (core_dump_can_intr && curproc_sigkilled())
 			return (EINTR);
 
