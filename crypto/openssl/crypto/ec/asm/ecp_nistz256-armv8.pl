@@ -79,6 +79,7 @@ close TABLE;
 die "insane number of elements" if ($#arr != 64*16*37-1);
 
 $code.=<<___;
+.rodata
 .globl	ecp_nistz256_precomputed
 .type	ecp_nistz256_precomputed,%object
 .align	12
@@ -103,6 +104,7 @@ for(1..37) {
 }
 $code.=<<___;
 .size	ecp_nistz256_precomputed,.-ecp_nistz256_precomputed
+.text
 .align	5
 .Lpoly:
 .quad	0xffffffffffffffff,0x00000000ffffffff,0x0000000000000000,0xffffffff00000001
