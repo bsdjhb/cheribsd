@@ -80,6 +80,7 @@ __ElfType(Verdaux);
 __ElfType(Verneed);
 __ElfType(Vernaux);
 __ElfType(Versym);
+__ElfType(Pltgot);
 
 /* Non-standard ELF types. */
 __ElfType(Hashelt);

@@ -266,4 +266,11 @@ typedef struct {
 	Elf64_Xword	ch_addralign;
 } Elf64_Chdr;
 
+/* PLTGOT table. */
+typedef struct {
+	Elf64_Addr	pg_addr;
+	Elf64_Addr	pg_jmpreladdr;
+	Elf64_Xword	pg_jmprelsize;
+} Elf64_Pltgot;
+
 #endif /* !_SYS_ELF64_H_ */

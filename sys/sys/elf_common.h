@@ -624,6 +624,9 @@ typedef struct {
 #define	DT_RELRSZ	35	/* Total size of ElfNN_Relr relocations. */
 #define	DT_RELR		36	/* Address of ElfNN_Relr relocations. */
 #define	DT_RELRENT	37	/* Size of each ElfNN_Relr relocation. */
+#define	DT_PLTGOTTAB	64	/* Address of PLTGOT table. */
+#define	DT_PLTGOTTABSZ	65	/* Size of PLTGOT table. */
+#define	DT_PLTGOTTABENT	66	/* Size of PLTGOT table entry. */
 #define	DT_LOOS		0x6000000d	/* First OS-specific */
 #define	DT_SUNW_AUXILIARY	0x6000000d	/* symbol auxiliary name */
 #define	DT_SUNW_RTLDINF		0x6000000e	/* ld.so.1 info (private) */

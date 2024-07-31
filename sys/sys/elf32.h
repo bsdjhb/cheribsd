@@ -262,4 +262,11 @@ typedef struct {
 	Elf32_Word	ch_addralign;
 } Elf32_Chdr;
 
+/* PLTGOT table. */
+typedef struct {
+	Elf32_Addr	pg_addr;
+	Elf32_Addr	pg_jmpreladdr;
+	Elf32_Word	pg_jmprelsize;
+} Elf32_Pltgot;
+
 #endif /* !_SYS_ELF32_H_ */
