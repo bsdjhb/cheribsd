@@ -297,6 +297,12 @@ OBJS+=		${SRCS:N*.h:${OBJS_SRCS_FILTER:ts:}:S/$/.o/}
 BCOBJS+=	${SRCS:N*.[hsS]:N*.asm:${OBJS_SRCS_FILTER:ts:}:S/$/.bco/g}
 LLOBJS+=	${SRCS:N*.[hsS]:N*.asm:${OBJS_SRCS_FILTER:ts:}:S/$/.llo/g}
 CLEANFILES+=	${OBJS} ${BCOBJS} ${LLOBJS} ${STATICOBJS}
+.for compart in ${COMPARTMENTS}
+COMPARTOBJS+=	${SRCS.${compart}:N*.h:${OBJS_SRCS_FILTER:ts:}:S/$/.o/}
+BCOBJS+=	${SRCS.${compart}:N*.[hsS]:N*.asm:${OBJS_SRCS_FILTER:ts:}:S/$/.bco/g}
+LLOBJS+=	${SRCS.${compart}:N*.[hsS]:N*.asm:${OBJS_SRCS_FILTER:ts:}:S/$/.llo/g}
+.endfor
+CLEANFILES+=	${OBJS} ${COMPARTOBJS} ${BCOBJS} ${LLOBJS} ${STATICOBJS}
 .endif
 
 .if defined(LIB) && !empty(LIB)
@@ -305,10 +311,10 @@ _STATICLIB_SUFFIX=	_real
 .endif
 _LIBS=		lib${LIB_PRIVATE}${LIB}${_STATICLIB_SUFFIX}.a
 
-lib${LIB_PRIVATE}${LIB}${_STATICLIB_SUFFIX}.a: ${OBJS} ${STATICOBJS}
+lib${LIB_PRIVATE}${LIB}${_STATICLIB_SUFFIX}.a: ${OBJS} ${COMPARTOBJS} ${STATICOBJS}
 	@${ECHO} building static ${LIB} library
 	@rm -f ${.TARGET}
-	${AR} ${ARFLAGS} ${.TARGET} ${OBJS} ${STATICOBJS} ${ARADD}
+	${AR} ${ARFLAGS} ${.TARGET} ${OBJS} ${COMPARTOBJS} ${STATICOBJS} ${ARADD}
 .endif
 
 .if !defined(INTERNALLIB)
@@ -340,6 +346,15 @@ CLEANFILES+=	lib${LIB_PRIVATE}${LIB}.bc lib${LIB_PRIVATE}${LIB}.ll
 SOBJS+=		${OBJS:.o=.pico}
 DEPENDOBJS+=	${SOBJS}
 CLEANFILES+=	${SOBJS}
+.for compart in ${COMPARTMENTS}
+SOBJS.${compart}= ${SRCS.${compart}:N*.h:${OBJS_SRCS_FILTER:ts:}:S/$/.pico/}
+COMPARTSOBJS+=	-Wl,--compartment=${compart} ${SOBJS.${compart}}
+DEPENDOBJS+=	${SOBJS.${compart}}
+CLEANFILES+=	${SOBJS.${compart}}
+.endfor
+.if !empty(COMPARTSOBJS)
+COMPARTSOBJS+=	-Wl,--compartment=""
+.endif
 .endif
 
 .if defined(SHLIB_NAME)
@@ -375,7 +390,7 @@ CLEANFILES+=	${SHLIB_LINK:R}.ld
 CLEANFILES+=	${SHLIB_LINK}
 .endif
 
-${SHLIB_NAME_FULL}: ${SOBJS}
+${SHLIB_NAME_FULL}: ${SOBJS} ${COMPARTSOBJS:N-Wl,*}
 	@${ECHO} building shared library ${SHLIB_NAME}
 	@rm -f ${SHLIB_NAME} ${SHLIB_LINK}
 .if defined(SHLIB_LINK) && !commands(${SHLIB_LINK:R}.ld) && ${MK_DEBUG_FILES} == "no"
@@ -383,7 +398,7 @@ ${SHLIB_NAME_FULL}: ${SOBJS}
 	@${LN:Uln} -fs ${SHLIB_NAME} ${SHLIB_LINK}
 .endif
 	${_LD:N${CCACHE_BIN}} ${LDFLAGS} ${SSP_CFLAGS} ${SOLINKOPTS} \
-	    -o ${.TARGET} -Wl,-soname,${SONAME} ${SOBJS} ${LDADD}
+	    -o ${.TARGET} -Wl,-soname,${SONAME} ${SOBJS} ${COMPARTSOBJS} ${LDADD}
 .if ${MK_CTF} != "no"
 	${CTFMERGE} ${CTFFLAGS} -o ${.TARGET} ${SOBJS}
 .endif
