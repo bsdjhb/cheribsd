@@ -176,6 +176,7 @@ _LIBRARIES=	\
 		memstat \
 		mp \
 		mt \
+		multigot \
 		ncursesw \
 		netgraph \
 		netmap \

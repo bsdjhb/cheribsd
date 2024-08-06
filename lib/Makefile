@@ -77,6 +77,7 @@ SUBDIR=	${SUBDIR_BOOTSTRAP} \
 	libmd \
 	libmixer \
 	libmt \
+	libmultigot \
 	lib80211 \
 	${_libnetmap} \
 	libnv \
