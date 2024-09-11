@@ -340,6 +340,9 @@ COMPARTSOBJS+=	-Wl,--compartment=${compart} ${SOBJS.${compart}}
 DEPENDOBJS+=	${SOBJS.${compart}}
 CLEANFILES+=	${SOBJS.${compart}}
 .endfor
+.if !empty(COMPARTSOBJS)
+COMPARTSOBJS+=	-Wl,--compartment=""
+.endif
 .endif
 
 .if defined(SHLIB_NAME)
