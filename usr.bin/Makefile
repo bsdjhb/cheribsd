@@ -96,6 +96,7 @@ SUBDIR=	alias \
 	mktemp \
 	mkuzip \
 	mt \
+	multigot \
 	ncal \
 	ncurses \
 	netstat \
