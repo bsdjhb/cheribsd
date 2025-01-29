@@ -292,6 +292,11 @@ LDFLAGS+=	-Wl,--undefined-version
 .endif
 .endif
 
+.if !empty(COMPARTMENT_POLICY)
+${SHLIB_NAME_FULL}:	${COMPARTMENT_POLICY}
+LDFLAGS+=	-Wl,--compartment-policy=${COMPARTMENT_POLICY}
+.endif
+
 .if defined(LIB) && !empty(LIB) || defined(SHLIB_NAME)
 OBJS+=		${SRCS:N*.h:${OBJS_SRCS_FILTER:ts:}:S/$/.o/}
 BCOBJS+=	${SRCS:N*.[hsS]:N*.asm:${OBJS_SRCS_FILTER:ts:}:S/$/.bco/g}
