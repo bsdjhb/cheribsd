@@ -1,0 +1,13 @@
+{
+    "compartments": {
+	"crc32": { "files": [], "symbols": ["calculate_crc32c"] },
+	"one": { "files": ["one.*o", "oneb.*o"] },
+	"two": { "files": [], "symbols": ["counter_str"] }
+    },
+    "acls": [
+	{ "subject": { "name": "two" }, "permissions": "r", "object": { "name": "counter", "type": "symbol" } },
+	{ "subject": { "name": "*" }, "permissions": "x", "object": {"name": "crc32","type": "compartment" } },
+	{ "subject": { "name": "*" }, "permissions": "x", "object": {"name": "one", "type": "compartment" } },
+	{ "subject": { "name": "*" }, "permissions": "x", "object": {"name": "two", "type": "compartment" } }
+    ]
+}

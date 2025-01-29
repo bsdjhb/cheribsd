@@ -5,11 +5,11 @@ PACKAGE=clibs
 
 INCS=	libmultigot.h
 
-COMPARTMENTS= crc32 one two
+SRCS=	gsb_crc32.c
+SRCS+=	one.c oneb.c
+SRCS+=	two.c
 
-SRCS.crc32=	gsb_crc32.c
-SRCS.one=	one.c oneb.c
-SRCS.two=	two.c
+COMPARTMENT_POLICY=	${.CURDIR}/compartments.json
 
 .include <bsd.lib.mk>
 
