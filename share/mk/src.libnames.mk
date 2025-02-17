@@ -126,6 +126,7 @@ _LIBRARIES=	\
 		cheri_caprevoke \
 		com_err \
 		compiler_rt \
+		crosscall \
 		crypt \
 		crypto \
 		ctf \

@@ -1,0 +1,6 @@
+{
+    "compartments": {
+	"one": { "files": ["one.*o", "dice.*o"] },
+	"two": { "files": ["two.*o"] }
+    }
+}

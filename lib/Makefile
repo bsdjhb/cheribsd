@@ -47,6 +47,7 @@ SUBDIR=	${SUBDIR_BOOTSTRAP} \
 	libcapsicum \
 	libcasper \
 	libcompat \
+	libcrosscall \
 	libcrypt \
 	libdevctl \
 	libdevdctl \

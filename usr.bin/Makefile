@@ -25,6 +25,7 @@ SUBDIR=	alias \
 	column \
 	comm \
 	compress \
+	crosscall \
 	csplit \
 	ctlstat \
 	cut \
