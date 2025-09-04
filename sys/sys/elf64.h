@@ -266,4 +266,10 @@ typedef struct {
 	Elf64_Xword	ch_addralign;
 } Elf64_Chdr;
 
+typedef struct {
+	Elf64_Word	acl_subject;
+	Elf64_Word	acl_object;
+	Elf64_Word	acl_perms;
+} Elf64_Acl;
+
 #endif /* !_SYS_ELF64_H_ */

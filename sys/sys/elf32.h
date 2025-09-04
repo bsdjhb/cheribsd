@@ -262,4 +262,10 @@ typedef struct {
 	Elf32_Word	ch_addralign;
 } Elf32_Chdr;
 
+typedef struct {
+	Elf32_Word	acl_subject;
+	Elf32_Word	acl_object;
+	Elf32_Word	acl_perms;
+} Elf32_Acl;
+
 #endif /* !_SYS_ELF32_H_ */

@@ -450,6 +450,7 @@ typedef struct {
 #define	SHT_GROUP		17	/* Section group. */
 #define	SHT_SYMTAB_SHNDX	18	/* Section indexes (see SHN_XINDEX). */
 #define	SHT_LOOS		0x60000000	/* First of OS specific semantics */
+#define	SHT_C18N_ACL		0x64331380	/* Compartment access rules */
 #define	SHT_LOSUNW		0x6ffffff4
 #define	SHT_SUNW_dof		0x6ffffff4
 #define	SHT_SUNW_cap		0x6ffffff5
@@ -655,6 +656,8 @@ typedef struct {
 #define	DT_SUNW_ASLR		0x60000023	/* ASLR control */
 #define	DT_C18N_STRTAB		0x64331380	/* Compartment string table */
 #define	DT_C18N_STRTABSZ	0x64331381	/* Compartment string table size */
+#define	DT_C18N_ACL		0x64331382	/* Compartment access rules table */
+#define	DT_C18N_ACLSZ		0x64331383	/* Compartment access rules table size */
 #define	DT_CHERI_TGOTREL	0x64348450	/* Address of TGOT relocations. */
 #define	DT_CHERI_TGOTRELT	0x64348451	/* Type of relocation used for TGOT. */
 #define	DT_CHERI_TGOTRELSZ	0x64348453	/* Total size in bytes of TGOT relocations. */
@@ -1745,6 +1748,16 @@ typedef struct {
 /* 39 and 40 were BND-related, already decomissioned */
 #define	R_X86_64_GOTPCRELX	41
 #define	R_X86_64_REX_GOTPCRELX	42
+
+/* Elf_Acl permission bits. */
+#define	ELF_ACL_X		0x00000001
+#define	ELF_ACL_W		0x00000002
+#define	ELF_ACL_R		0x00000004
+#define	ELF_ACL_MASKOBJECT	0x000f0000
+#define	ELF_ACL_OBJECT_SYMBOL		0x00010000
+#define	ELF_ACL_OBJECT_COMPARTMENT	0x00020000
+#define	ELF_ACL_MASKOS		0x0ff00000
+#define	ELF_ACL_MASKPROC	0xf0000000
 
 #define	ELF_BSDF_SIGFASTBLK	0x0001	/* Kernel supports fast sigblock */
 #define	ELF_BSDF_VMNOOVERCOMMIT	0x0002
