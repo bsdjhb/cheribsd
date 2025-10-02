@@ -13,6 +13,7 @@
 #include <cheri/cheric.h>
 
 #include "cheribsdtest.h"
+#include "cheribsdtest_compartments.h"
 
 static void
 compartment_one_foo(void)
@@ -43,5 +44,23 @@ CHERIBSDTEST(compartment_pcc_bounds,
 	    "compartment_one_foo", "compartment_pcc_bounds");
 	assert_disjoint_bounds(&compartment_two_foo, &compartment_pcc_bounds,
 	    "compartment_two_foo", "compartment_pcc_bounds");
+	cheribsdtest_success();
+}
+
+#define	CHERI_PERM_STORE_MASK						\
+	(CHERI_PERM_STORE | CHERI_PERM_STORE_CAP | CHERI_PERM_STORE_LOCAL_CAP)
+
+CHERIBSDTEST(compartment_static_cap_perms,
+    "Check that ACLs constrain permissions for pointers to non-preemptible "
+    "variables")
+{
+	void *one = compartment_one_static_data_ptr();
+	void *two = compartment_two_static_data_ptr();
+
+        CHERIBSDTEST_VERIFY((cheri_getperm(one) & CHERI_PERM_STORE_MASK) ==
+	    CHERI_PERM_STORE_MASK);
+	CHERIBSDTEST_VERIFY((cheri_getperm(two) & CHERI_PERM_STORE_MASK) == 0);
+	CHERIBSDTEST_VERIFY(cheri_equal_exact(cheri_clearperm(one,
+	    CHERI_PERM_STORE_MASK), two));
 	cheribsdtest_success();
 }

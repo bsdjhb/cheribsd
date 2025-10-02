@@ -2,13 +2,22 @@
   "compartments": {
     "one": {
       "symbols": [
-        "compartment_one_foo"
+        "compartment_one_*"
       ]
     },
     "two": {
       "symbols": [
-        "compartment_two_foo"
+        "compartment_two_*"
       ]
     }
-  }
+  },
+  "acls": [
+    {
+      "subject": "two",
+      "permissions": "rx",
+      "compartments": [
+        "one"
+      ]
+    }
+  ]
 }

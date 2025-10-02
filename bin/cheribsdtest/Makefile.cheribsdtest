@@ -37,8 +37,11 @@ SRCS+=	cheribsdtest_bounds_subobject.c					\
 	cheribsdtest_sentries.c
 
 .if ${MK_COMPARTMENT_POLICY} != "no"
-SRCS+=	cheribsdtest_compartments.c
+SRCS+=	cheribsdtest_compartments.c					\
+	cheribsdtest_compartments_helpers.c
 CFLAGS.cheribsdtest_compartments.c+=-ffunction-sections
+CFLAGS.cheribsdtest_compartments_helpers.c+=-fdata-sections
+CFLAGS.cheribsdtest_compartments_helpers.c+=-ffunction-sections
 COMPARTMENT_POLICY=	${CHERIBSDTEST_DIR}/compartments.json
 .endif
 .endif
