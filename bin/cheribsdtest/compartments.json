@@ -13,6 +13,20 @@
   },
   "acls": [
     {
+      "subject": "one",
+      "permissions": "rw",
+      "symbols": [
+        "optarg"
+      ]
+    },
+    {
+      "subject": "two",
+      "permissions": "r",
+      "symbols": [
+        "optarg"
+      ]
+    },
+    {
       "subject": "two",
       "permissions": "rx",
       "compartments": [

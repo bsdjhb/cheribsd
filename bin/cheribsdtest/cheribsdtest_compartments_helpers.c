@@ -9,6 +9,8 @@
  * Projects Agency (DARPA) Contract No. FA8750-24-C-B047 ("DEC").
  */
 
+#include <unistd.h>
+
 #include "cheribsdtest.h"
 #include "cheribsdtest_compartments.h"
 
@@ -25,3 +27,17 @@ compartment_two_static_data_ptr(void)
 {
 	return (compartment_one_data_buffer);
 }
+
+#ifdef CHERIBSD_DYNAMIC_TESTS
+void *
+compartment_one_global_data_ptr(void)
+{
+	return (&optarg);
+}
+
+void *
+compartment_two_global_data_ptr(void)
+{
+	return (&optarg);
+}
+#endif

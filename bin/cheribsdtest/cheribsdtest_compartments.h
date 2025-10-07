@@ -12,6 +12,10 @@
 #ifndef _CHERIBSDTEST_COMPARTMENTS_H_
 #define	_CHERIBSDTEST_COMPARTMENTS_H_
 
+#ifdef CHERIBSD_DYNAMIC_TESTS
+void	*compartment_one_global_data_ptr(void);
+void	*compartment_two_global_data_ptr(void);
+#endif
 void	*compartment_one_static_data_ptr(void);
 void	*compartment_two_static_data_ptr(void);
 

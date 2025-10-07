@@ -64,3 +64,20 @@ CHERIBSDTEST(compartment_static_cap_perms,
 	    CHERI_PERM_STORE_MASK), two));
 	cheribsdtest_success();
 }
+
+#ifdef CHERIBSD_DYNAMIC_TESTS
+CHERIBSDTEST(compartment_global_cap_perms,
+    "Check that ACLs constrain permissions for pointers to preemptible "
+    "variables")
+{
+	void *one = compartment_one_global_data_ptr();
+	void *two = compartment_two_global_data_ptr();
+
+        CHERIBSDTEST_VERIFY((cheri_getperm(one) & CHERI_PERM_STORE_MASK) ==
+	    CHERI_PERM_STORE_MASK);
+	CHERIBSDTEST_VERIFY((cheri_getperm(two) & CHERI_PERM_STORE_MASK) == 0);
+	CHERIBSDTEST_VERIFY(cheri_equal_exact(cheri_clearperm(one,
+	    CHERI_PERM_STORE_MASK), two));
+	cheribsdtest_success();
+}
+#endif
