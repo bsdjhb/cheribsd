@@ -12,5 +12,33 @@
 		"crtn.o"
 	    ]
 	}
-    }
+    },
+    "acls": [
+	{
+	    "subject": "csu",
+	    "permissions": "r",
+	    "symbols": [
+		"__rela_dyn_end",
+		"__rela_dyn_start",
+		"__start___cap_relocs",
+		"__stop___cap_relocs"
+	    ]
+	},
+	{
+	    "subject": "csu",
+	    "permissions": "rw",
+	    "symbols": [
+		"environ"
+	    ]
+	},
+	{
+	    "subject": "csu",
+	    "permissions": "x",
+	    "symbols": [
+		"__cxa_finalize",
+		"__libc_start1",
+		"main"
+	    ]
+	}
+    ]
 }
