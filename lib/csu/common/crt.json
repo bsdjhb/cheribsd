@@ -2,6 +2,7 @@
     "compartments": {
 	"csu": {
 	    "files": [
+		"Scrt1.o",
 		"crt1.o",
 		"crtbegin.o",
 		"crtbeginS.o",
