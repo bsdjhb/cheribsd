@@ -185,12 +185,20 @@ PROG_FULL=	${PROG}
 .endif
 
 .if ${MK_COMPARTMENT_POLICY} != "no" && ${MACHINE_ABI:Mpurecap}
+# Add the C runtime policy as an implicit policy for all binaries.
+# Note that the policy may not exist when bootstrapping.  If no other
+# policies are specified, prevent merging other symbols in the "csu"
+# compartment.
+.if exists(${SYSROOT}/usr/lib/crt.json)
 .if empty(COMPARTMENT_POLICY)
 LDFLAGS+=	-Wl,--no-compartment-inference
 .endif
 COMPARTMENT_POLICY+=	${SYSROOT}/usr/lib/crt.json
+.endif
+.if !empty(COMPARTMENT_POLICY)
 ${PROG_FULL}:	${COMPARTMENT_POLICY}
 LDFLAGS+=	${COMPARTMENT_POLICY:S/^/-Wl,--compartment-policy=/}
+.endif
 .endif
 
 .if defined(PROG)
