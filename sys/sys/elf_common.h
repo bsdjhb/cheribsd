@@ -450,6 +450,7 @@ typedef struct {
 #define	SHT_GROUP		17	/* Section group. */
 #define	SHT_SYMTAB_SHNDX	18	/* Section indexes (see SHN_XINDEX). */
 #define	SHT_LOOS		0x60000000	/* First of OS specific semantics */
+#define	SHT_CHERI_RELFLAGS	0x64348454	/* CHERI relocation flags. */
 #define	SHT_C18N_ACL		0x64331380	/* Compartment access rules */
 #define	SHT_LOSUNW		0x6ffffff4
 #define	SHT_SUNW_dof		0x6ffffff4
@@ -661,6 +662,7 @@ typedef struct {
 #define	DT_CHERI_TGOTREL	0x64348450	/* Address of TGOT relocations. */
 #define	DT_CHERI_TGOTRELT	0x64348451	/* Type of relocation used for TGOT. */
 #define	DT_CHERI_TGOTRELSZ	0x64348453	/* Total size in bytes of TGOT relocations. */
+#define	DT_CHERI_RELFLAGS	0x64348454	/* CHERI relocation flags. */
 #define	DT_HIOS		0x6ffff000	/* Last OS-specific */
 
 /*
@@ -1748,6 +1750,9 @@ typedef struct {
 /* 39 and 40 were BND-related, already decomissioned */
 #define	R_X86_64_GOTPCRELX	41
 #define	R_X86_64_REX_GOTPCRELX	42
+
+/* CHERI relocation flags. */
+#define	CHERI_RELOCATION_READ_ONLY	0x00000001
 
 /* Elf_Acl permission bits. */
 #define	ELF_ACL_X		0x00000001
