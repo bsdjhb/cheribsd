@@ -2088,6 +2088,13 @@ digest_dynamic1(Obj_Entry *obj, int early, const Elf_Dyn **dyn_rpath,
 				obj->z_pie = true;
 			break;
 
+#ifdef __CHERI_PURE_CAPABILITY__
+		case DT_CHERI_RELFLAGS:
+			obj->relflags = (const Elf_Word *)(obj->relocbase +
+			    dynp->d_un.d_ptr);
+			break;
+#endif
+
 		default:
 			if (arch_digest_dynamic(obj, dynp))
 				break;

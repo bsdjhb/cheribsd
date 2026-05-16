@@ -48,7 +48,8 @@
 
 static inline int
 process_r_cheri_capability(Obj_Entry *obj, Elf_Word r_symndx,
-    RtldLockState *lockstate, int flags, void *where, Elf_Ssize addend)
+    RtldLockState *lockstate, int flags, void *where, Elf_Ssize addend,
+    Elf_Word cflags)
 {
 	const Obj_Entry *defobj;
 	const Elf_Sym *def =
@@ -150,6 +151,9 @@ process_r_cheri_capability(Obj_Entry *obj, Elf_Word r_symndx,
 		/* Remove execute permissions and set bounds */
 		symval = (const char * __capability)make_data_cap(def, defobj) +
 		    addend;
+		if (cflags & CHERI_RELOCATION_READ_ONLY)
+			symval = cheri_perms_clear(symval,
+			    FUNC_PTR_REMOVE_PERMS);
 	}
 #ifdef DEBUG
 	// FIXME: this warning breaks some tests that expect clean stdout/stderr

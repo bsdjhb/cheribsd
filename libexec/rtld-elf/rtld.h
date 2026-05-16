@@ -293,6 +293,9 @@ typedef struct Struct_Obj_Entry {
     unsigned long relsize;	/* Size in bytes of relocation info */
     const Elf_Rela *rela;	/* Relocation entries with addend */
     unsigned long relasize;	/* Size in bytes of addend relocation info */
+#ifdef __CHERI_PURE_CAPABILITY__
+    const Elf_Word *relflags;	/* CHERI relocation entry flags */
+#endif
     const Elf_Relr *relr;	/* RELR relocation entries */
     unsigned long relrsize;	/* Size in bytes of RELR relocations */
     const Elf_Sym *symtab;	/* Symbol table */

@@ -431,6 +431,9 @@ reloc_non_plt(Obj_Entry *obj, Obj_Entry *obj_rtld, int flags,
 	SymCache *cache;
 	Elf_Addr *where, symval;
 	unsigned long symnum;
+#ifdef __CHERI_PURE_CAPABILITY__
+	Elf_Word cflags;
+#endif
 
 #ifdef __CHERI_PURE_CAPABILITY__
 	/*
@@ -577,8 +580,12 @@ reloc_non_plt(Obj_Entry *obj, Obj_Entry *obj_rtld, int flags,
 			break;
 #ifdef __CHERI_PURE_CAPABILITY__
 		case R_RISCV_CHERI_CAPABILITY:
+			if (obj->relflags != NULL)
+				cflags = obj->relflags[rela - obj->rela];
+			else
+				cflags = 0;
 			if (process_r_cheri_capability(obj, symnum, lockstate,
-			    flags, where, rela->r_addend) != 0)
+			    flags, where, rela->r_addend, cflags) != 0)
 				return (-1);
 			break;
 		case R_RISCV_CHERI_TLS_TGOTREL:

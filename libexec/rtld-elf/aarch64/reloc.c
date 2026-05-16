@@ -890,6 +890,7 @@ reloc_non_plt(Obj_Entry *obj, Obj_Entry *obj_rtld, int flags,
 #if __has_feature(capabilities)
 	void * __capability data_cap;
 	bool use_code_bounds = false;
+	Elf_Word cflags;
 #endif
 
 #ifdef __CHERI_PURE_CAPABILITY__
@@ -995,9 +996,15 @@ reloc_non_plt(Obj_Entry *obj, Obj_Entry *obj_rtld, int flags,
 		 */
 		case R_MORELLO_CAPINIT:
 		case R_MORELLO_GLOB_DAT:
+#ifdef __CHERI_PURE_CAPABILITY__
+			if (obj->relflags != NULL)
+				cflags = obj->relflags[rela - obj->rela];
+			else
+#endif
+				cflags = 0;
 			if (process_r_cheri_capability(obj,
 			    ELF_R_SYM(rela->r_info), lockstate, flags,
-			    where, rela->r_addend) != 0)
+			    where, rela->r_addend, cflags) != 0)
 				return (-1);
 			break;
 		case R_MORELLO_RELATIVE:
