@@ -334,7 +334,7 @@ AliasHandleUdpNbt(
 	struct udphdr *uh;
 	NbtDataHeader *ndh;
 	u_char *p = NULL;
-	char *pmax;
+	char *pmax, *ipmax;
 #ifdef LIBALIAS_DEBUG
 	char addrbuf[INET_ADDRSTRLEN];
 #endif
@@ -345,6 +345,11 @@ AliasHandleUdpNbt(
 	/* Calculate data length of UDP packet */
 	uh = (struct udphdr *)ip_next(pip);
 	pmax = (char *)uh + ntohs(uh->uh_ulen);
+
+	/* If this is a fragment it might not contain the full UDP payload. */
+	ipmax = (char *)pip + ntohs(pip->ip_len);
+	if (pmax > ipmax)
+		pmax = ipmax;
 
 	ndh = (NbtDataHeader *)udp_next(uh);
 	if ((char *)(ndh + 1) > pmax)
@@ -762,7 +767,7 @@ AliasHandleUdpNbtNS(
 	struct udphdr *uh;
 	NbtNSHeader *nsh;
 	u_char *p;
-	char *pmax;
+	char *pmax, *ipmax;
 	NBTArguments nbtarg;
 
 	(void)la;
@@ -780,6 +785,11 @@ AliasHandleUdpNbtNS(
 	nsh = (NbtNSHeader *)udp_next(uh);
 	p = (u_char *)(nsh + 1);
 	pmax = (char *)uh + ntohs(uh->uh_ulen);
+
+	/* If this is a fragment it might not contain the full UDP payload. */
+	ipmax = (char *)pip + ntohs(pip->ip_len);
+	if (pmax > ipmax)
+		pmax = ipmax;
 
 	if ((char *)(nsh + 1) > pmax)
 		return (-1);
