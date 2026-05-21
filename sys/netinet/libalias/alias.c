@@ -1348,7 +1348,7 @@ static int
 LibAliasInLocked(struct libalias *la, struct ip *pip, int maxpacketsize)
 {
 	struct in_addr alias_addr;
-	int iresult;
+	int hlen, iresult;
 
 	if (la->packetAliasMode & PKT_ALIAS_REVERSE) {
 		la->packetAliasMode &= ~PKT_ALIAS_REVERSE;
@@ -1357,14 +1357,21 @@ LibAliasInLocked(struct libalias *la, struct ip *pip, int maxpacketsize)
 		goto getout;
 	}
 	HouseKeeping(la);
-	alias_addr = pip->ip_dst;
 
 	/* Defense against mangled packets */
-	if (ntohs(pip->ip_len) > maxpacketsize
-	    || (pip->ip_hl << 2) > maxpacketsize) {
+	if ((int)sizeof(struct ip) > maxpacketsize
+	    || pip->ip_v != IPVERSION) {
 		iresult = PKT_ALIAS_IGNORED;
 		goto getout;
 	}
+	hlen = pip->ip_hl << 2;
+	if (hlen < (int)sizeof(struct ip) || hlen > maxpacketsize
+	    || ntohs(pip->ip_len) > maxpacketsize) {
+		iresult = PKT_ALIAS_IGNORED;
+		goto getout;
+	}
+
+	alias_addr = pip->ip_dst;
 
 	if (FRAG_NO_HDR(pip)) {
 		iresult = FragmentIn(la, pip->ip_src, pip, pip->ip_id,
@@ -1478,7 +1485,7 @@ LibAliasOutLocked(struct libalias *la,
     int create		/* Create new entries ? */
 )
 {
-	int iresult;
+	int hlen, iresult;
 	struct in_addr addr_save;
 
 	if (la->packetAliasMode & PKT_ALIAS_REVERSE) {
@@ -1490,8 +1497,14 @@ LibAliasOutLocked(struct libalias *la,
 	HouseKeeping(la);
 
 	/* Defense against mangled packets */
-	if (ntohs(pip->ip_len) > maxpacketsize
-	    || (pip->ip_hl << 2) > maxpacketsize) {
+	if ((int)sizeof(struct ip) > maxpacketsize
+	    || pip->ip_v != IPVERSION) {
+		iresult = PKT_ALIAS_IGNORED;
+		goto getout;
+	}
+	hlen = pip->ip_hl << 2;
+	if (hlen < (int)sizeof(struct ip) || hlen > maxpacketsize
+	    || ntohs(pip->ip_len) > maxpacketsize) {
 		iresult = PKT_ALIAS_IGNORED;
 		goto getout;
 	}
