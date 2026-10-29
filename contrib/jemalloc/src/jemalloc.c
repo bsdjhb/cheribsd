@@ -2770,6 +2770,10 @@ malloc_default(size_t size) {
 
 	LOG("core.malloc.exit", "result: %p", ret);
 
+	/* XXXJHB: Doesn't imalloc() already set bounds? */
+	if (ret != NULL) {
+		ret = BOUND_PTR(ret, sz_s2u(size));
+	}
 	return ret;
 }
 
@@ -4128,6 +4132,11 @@ je_malloc_usable_size_impl(JEMALLOC_USABLE_SIZE_CONST void *ptr) {
 		} else {
 			ret = isalloc(tsdn, ptr);
 		}
+#ifdef __CHERI_PURE_CAPABILITY__
+		if (ret != 0 && cheri_tag_get(ptr)) {
+			ret = MIN(ret, cheri_length_get(ptr));
+		}
+#endif
 	}
 	check_entry_exit_locking(tsdn);
 
